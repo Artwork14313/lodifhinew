@@ -70,7 +70,7 @@ function Doctors() {
               >
                 <option value="all">All</option>
                 <option value="Surgery">Surgery</option>
-                <option value="Pediatric">Pediatric</option>
+                <option value="Pediatrics">Pediatrics</option>
                 <option value="Internal Medicine">Internal Medicine</option>
                 <option value="Anesthesiology">Anesthesiology</option>
                 <option value="Obstetrics & Gynecology">
