@@ -36,7 +36,7 @@ const TableWithShowMore = ({ data }) => {
                 <thead>
                   <tr className="divide-x divide-white">
                     <th class="px-2 sm:px-6 py-3 text-left text-base xl:text-lg font-medium uppercase tracking-wider">
-                      {data === xrayData && "EXAMINATION" } {data === ultraData && "EXAMINATION" } {data === orData && "PROCEDURE" } {data === opdData && "Services" }
+                      {data === xrayData && "EXAMINATION"} {data === ultraData && "EXAMINATION"} {data === orData && "PROCEDURE"} {data === opdData && "Services"}
                     </th>
                     <th class="px-2 sm:px-6 py-3 text-left text-base xl:text-lg font-medium uppercase tracking-wider">
                       OPD PRICE
@@ -72,7 +72,7 @@ const TableWithShowMore = ({ data }) => {
                   <thead>
                     <tr className="divide-x divide-white">
                       <th class="px-2 sm:px-6 py-3 text-left text-base xl:text-lg font-medium uppercase tracking-wider">
-                      {data === xrayData && "EXAMINATION" } {data === ultraData && "EXAMINATION" } {data === orData && "PROCEDURE" } {data === opdData && "Services" }
+                        {data === xrayData && "EXAMINATION"} {data === ultraData && "EXAMINATION"} {data === orData && "PROCEDURE"} {data === opdData && "Services"}
                       </th>
                       <th class="px-2 sm:px-6 py-3 text-left text-base xl:text-lg font-medium uppercase tracking-wider">
                         OPD PRICE
@@ -116,30 +116,37 @@ const TableWithShowMore = ({ data }) => {
             <div class="clearfix"></div>
           </div>
           {data.length > 3 && (
-            <div>
-              <p className="ml-10 absolute mt-2 font-bold text-lg flex justify-start">
-                Schedule: <span className="ml-2">{data === xrayData && "6:00 am to 10:00 pm" } {data === ultraData && "Tuesday & Friday" } {data === orData && "6:00 am to 10:00 pm" } {data === opdData && "8:00 am to 5:00 pm" }</span>
-              </p>
+            <div className="m-3">
+              {/* Schedule + Button row */}
+              <div className="flex items-center justify-between gap-4">
+                
+                {data.length >= 20 && (
+                  <button
+                    className="py-1 px-3 font-bold text-white bg-blue-300 hover:bg-blue-50 hover:text-[#337CCF] hover:border-blue-400 rounded-lg border-4 text-sm duration-500 flex items-center"
+                    onClick={() => setShowAll(!showAll)}
+                  >
+                    {showAll ? "Show Less" : "Show More"}
+                    {showAll ? (
+                      <BiSolidChevronUp className="ml-1 text-lg" />
+                    ) : (
+                      <BiSolidChevronDown className="ml-1 text-lg" />
+                    )}
+                  </button>
+                )}
 
-              <div
-                className={`${
-                  data.length < 20 && "invisible"
-                } m-3 flex justify-center`}
-              >
-                <button
-                  className="mt-1 py-1 me-2 mb-2 font-bold text-white hover:text-[#337CCF] bg-blue-300 hover:bg-blue-50 hover:border-blue-400 rounded-lg px-3 border-white-400 border-4 text-sm duration-500"
-                  onClick={() => setShowAll(!showAll)}
-                >
-                  {showAll ? "Show Less" : "Show More"}
-                  {showAll ? (
-                    <BiSolidChevronUp className="inline-block relative left-1 text-lg " />
-                  ) : (
-                    <BiSolidChevronDown className="inline-block relative bottom-[1px] left-1 text-lg " />
-                  )}
-                </button>
+                <p className="font-bold text-lg flex items-center">
+                  <span className="mr-2">Schedule:</span>
+                  <span>
+                    {data === xrayData && "6:00 am to 10:00 pm"}
+                    {data === ultraData && "Tuesday & Friday"}
+                    {data === orData && "6:00 am to 10:00 pm"}
+                    {data === opdData && "8:00 am to 5:00 pm"}
+                  </span>
+                </p>
               </div>
             </div>
           )}
+
         </div>
       </div>
 
@@ -151,7 +158,7 @@ const TableWithShowMore = ({ data }) => {
                 <thead>
                   <tr className="divide-x divide-white">
                     <th class="px-2 sm:px-6 py-3 text-left text-base xl:text-lg font-medium uppercase tracking-wider">
-                    {data === xrayData && "EXAMINATION" } {data === ultraData && "EXAMINATION" } {data === orData && "PROCEDURE" } {data === opdData && "Services" }
+                      {data === xrayData && "EXAMINATION"} {data === ultraData && "EXAMINATION"} {data === orData && "PROCEDURE"} {data === opdData && "Services"}
                     </th>
                     <th class="px-2 sm:px-6 py-3 text-left text-base xl:text-lg font-medium uppercase tracking-wider">
                       OPD PRICE
@@ -185,21 +192,21 @@ const TableWithShowMore = ({ data }) => {
           </div>
           {data.length > 3 && (
             <div>
-            <div className="m-3 flex justify-center">
-              <button
-                className="mt-1 py-1 me-2 mb-5 font-bold text-white hover:text-[#337CCF] bg-blue-300 hover:bg-blue-50 hover:border-blue-400 rounded-lg px-3 border-white-400 border-4 text-sm duration-500"
-                onClick={() => setShowAll(!showAll)}
-              >
-                {showAll ? "Show Less" : "Show More"}
-                {showAll ? (
-                  <BiSolidChevronUp className="inline-block relative left-1 text-lg " />
-                ) : (
-                  <BiSolidChevronDown className="inline-block relative bottom-[1px] left-1 text-lg " />
-                )}
-              </button>
-            </div>
-            <hr className="mb-5"/>
-            <p className="ml-6 mb-5 font-bold text-md flex justify-start">
+              <div className="m-3 flex justify-center">
+                <button
+                  className="mt-1 py-1 me-2 mb-5 font-bold text-white hover:text-[#337CCF] bg-blue-300 hover:bg-blue-50 hover:border-blue-400 rounded-lg px-3 border-white-400 border-4 text-sm duration-500"
+                  onClick={() => setShowAll(!showAll)}
+                >
+                  {showAll ? "Show Less" : "Show More"}
+                  {showAll ? (
+                    <BiSolidChevronUp className="inline-block relative left-1 text-lg " />
+                  ) : (
+                    <BiSolidChevronDown className="inline-block relative bottom-[1px] left-1 text-lg " />
+                  )}
+                </button>
+              </div>
+              <hr className="mb-5" />
+              <p className="ml-6 mb-5 font-bold text-md flex justify-start">
                 Schedule: <span className="ml-2">{data === ultraData ? "Tuesday & Friday" : "6:00 am to 10:00 pm"}</span>
               </p>
             </div>
