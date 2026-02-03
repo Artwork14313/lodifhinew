@@ -1,7 +1,8 @@
-import React, { useState } from "react";
+
 import { BiSolidChevronDown, BiSolidChevronUp } from "react-icons/bi";
 import { CSSTransition, TransitionGroup } from "react-transition-group";
 import { orData, ultraData, opdData, xrayData } from "../data";
+import { useLayoutEffect, useRef, useState } from "react";
 
 const TableWithShowMore = ({ data }) => {
   const itemsPerTable = Math.ceil(data.length / 2);
@@ -26,100 +27,105 @@ const TableWithShowMore = ({ data }) => {
 
   const itemsToShow = showAll ? data.length : 10;
 
+  const tableRef = useRef(null);
+
+  useLayoutEffect(() => {
+  if (!showAll && tableRef.current) {
+    window.scrollTo({ top, behavior: "smooth" });
+  }
+}, [showAll]);
+
   return (
     <>
-      <div className="bg-gray-100 md:py-1 hidden lg:block cursor-default">
+      <div ref={tableRef} className="bg-gray-100 md:py-1 hidden lg:block cursor-default">
         <div class="overflow-x-auto mx-0 xl:mx-40 2xl:mx-80 mt-7 mb-9 justify-evenly justify-items-center content-evenly items-start shadow-inner2 text-white bg-[#1450A3] bg-opacity-70">
-          <div class="overflow-x-auto">
-            <div class="w-full lg:w-1/2 p-4 float-left border-b-2 lg:border-b-0 lg:border-r-2 border-white">
-              <table class="min-w-full divide-y divide-white">
-                <thead>
-                  <tr className="divide-x divide-white">
-                    <th class="px-2 sm:px-6 py-3 text-left text-base xl:text-lg font-medium uppercase tracking-wider">
-                      {data === xrayData && "EXAMINATION"} {data === ultraData && "EXAMINATION"} {data === orData && "PROCEDURE"} {data === opdData && "Services"}
-                    </th>
-                    <th class="px-2 sm:px-6 py-3 text-left text-base xl:text-lg font-medium uppercase tracking-wider">
-                      OPD PRICE
-                    </th>
-                  </tr>
-                </thead>
-                <tbody class="divide-y divide-white text-sm sm:text-base">
-                  <TransitionGroup component={null}>
-                    {firstTableData.map((item, index) => (
-                      <CSSTransition
-                        key={index}
-                        timeout={500}
-                        classNames="fade"
-                      >
-                        <tr key={item.id} className="divide-x divide-white hover:bg-blue-900 hover:bg-opacity-40 hover:shadow-md duration-500 delay-100">
-                          <td class="px-2 sm:px-6 py-4 whitespace-nowrap">
-                            {item.Exam}
-                          </td>
-                          <td class="px-2 sm:px-6 py-4 whitespace-nowrap">
-                            ₱ {item.Price.toLocaleString()}
-                          </td>
-                        </tr>
-                      </CSSTransition>
-                    ))}
-                  </TransitionGroup>
-                </tbody>
-              </table>
-            </div>
+          <div className="overflow-x-auto">
+            <div className="flex items-stretch">
 
-            {secondTableData.length > 0 && (
-              <div class="w-full lg:w-1/2 p-4 float-left border-t-2 lg:border-t-0 lg:border-l-2 border-white">
-                <table class="min-w-full divide-y divide-white">
+              {/* First Table */}
+              <div className="w-full lg:w-1/2 p-4 border-b-2 lg:border-b-0 border-white">
+                <table className="min-w-full divide-y divide-white">
                   <thead>
                     <tr className="divide-x divide-white">
-                      <th class="px-2 sm:px-6 py-3 text-left text-base xl:text-lg font-medium uppercase tracking-wider">
-                        {data === xrayData && "EXAMINATION"} {data === ultraData && "EXAMINATION"} {data === orData && "PROCEDURE"} {data === opdData && "Services"}
+                      <th className="px-2 sm:px-6 py-3 text-left text-base xl:text-lg font-medium uppercase tracking-wider">
+                        {data === xrayData && "EXAMINATION"}
+                        {data === ultraData && "EXAMINATION"}
+                        {data === orData && "PROCEDURE"}
+                        {data === opdData && "Services"}
                       </th>
-                      <th class="px-2 sm:px-6 py-3 text-left text-base xl:text-lg font-medium uppercase tracking-wider">
+                      <th className="px-2 sm:px-6 py-3 text-left text-base xl:text-lg font-medium uppercase tracking-wider">
                         OPD PRICE
                       </th>
                     </tr>
                   </thead>
-                  <tbody class="divide-y divide-white text-sm sm:text-base">
+
+                  <tbody className="divide-y divide-white text-sm sm:text-base">
                     <TransitionGroup component={null}>
-                      {secondTableData.map((item, index) => (
-                        <CSSTransition
-                          key={index}
-                          timeout={500}
-                          classNames="fade"
-                        >
-                          <tr key={item.id} className="divide-x divide-white hover:bg-blue-900 hover:bg-opacity-40 hover:shadow-md duration-500 delay-100">
-                            <td class="px-2 sm:px-6 py-4 whitespace-nowrap">
+                      {firstTableData.map((item) => (
+                        <CSSTransition key={item.id} timeout={500} classNames="fade">
+                          <tr className="divide-x divide-white hover:bg-blue-900 hover:bg-opacity-40 hover:shadow-md duration-500">
+                            <td className="px-2 sm:px-6 py-4 whitespace-nowrap">
                               {item.Exam}
                             </td>
-                            <td class="px-2 sm:px-6 py-4 whitespace-nowrap">
+                            <td className="px-2 sm:px-6 py-4 whitespace-nowrap">
                               ₱ {item.Price.toLocaleString()}
                             </td>
                           </tr>
                         </CSSTransition>
                       ))}
                     </TransitionGroup>
-                    {firstTableData.length > secondTableData.length && (
-                      <tr className="divide-x divide-white invisible">
-                        <td class="px-2 sm:px-6 py-4 whitespace-nowrap">
-                          asdsad
-                        </td>
-                        <td class="px-2 sm:px-6 py-4 whitespace-nowrap">
-                          asdsads
-                        </td>
-                      </tr>
-                    )}
                   </tbody>
                 </table>
               </div>
-            )}
 
-            <div class="clearfix"></div>
+              {/* Vertical Divider (desktop only) */}
+              <div className="hidden lg:block w-[2px] bg-white opacity-80" />
+
+              {/* Second Table */}
+              {secondTableData.length > 0 && (
+                <div className="w-full lg:w-1/2 p-4 border-t-2 lg:border-t-0 border-white">
+                  <table className="min-w-full divide-y divide-white">
+                    <thead>
+                      <tr className="divide-x divide-white">
+                        <th className="px-2 sm:px-6 py-3 text-left text-base xl:text-lg font-medium uppercase tracking-wider">
+                          {data === xrayData && "EXAMINATION"}
+                          {data === ultraData && "EXAMINATION"}
+                          {data === orData && "PROCEDURE"}
+                          {data === opdData && "Services"}
+                        </th>
+                        <th className="px-2 sm:px-6 py-3 text-left text-base xl:text-lg font-medium uppercase tracking-wider">
+                          OPD PRICE
+                        </th>
+                      </tr>
+                    </thead>
+
+                    <tbody className="divide-y divide-white text-sm sm:text-base">
+                      <TransitionGroup component={null}>
+                        {secondTableData.map((item) => (
+                          <CSSTransition key={item.id} timeout={500} classNames="fade">
+                            <tr className="divide-x divide-white hover:bg-blue-900 hover:bg-opacity-40 hover:shadow-md duration-500">
+                              <td className="px-2 sm:px-6 py-4 whitespace-nowrap">
+                                {item.Exam}
+                              </td>
+                              <td className="px-2 sm:px-6 py-4 whitespace-nowrap">
+                                ₱ {item.Price.toLocaleString()}
+                              </td>
+                            </tr>
+                          </CSSTransition>
+                        ))}
+                      </TransitionGroup>
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
           </div>
+
           {data.length > 3 && (
             <div className="m-3">
               {/* Schedule + Button row */}
               <div className="flex items-center justify-between gap-4">
-                
+
                 {data.length >= 20 && (
                   <button
                     className="py-1 px-3 font-bold text-white bg-blue-300 hover:bg-blue-50 hover:text-[#337CCF] hover:border-blue-400 rounded-lg border-4 text-sm duration-500 flex items-center"
@@ -132,6 +138,7 @@ const TableWithShowMore = ({ data }) => {
                       <BiSolidChevronDown className="ml-1 text-lg" />
                     )}
                   </button>
+
                 )}
 
                 <p className="font-bold text-lg flex items-center">
@@ -150,7 +157,7 @@ const TableWithShowMore = ({ data }) => {
         </div>
       </div>
 
-      <div className="bg-gray-100 md:py-1 block lg:hidden">
+      <div ref={tableRef} className="bg-gray-100 md:py-1 block lg:hidden">
         <div class="overflow-x-auto mx-0 xl:mx-40 2xl:mx-80 my-7 justify-evenly justify-items-center content-evenly items-start shadow-inner2 text-white bg-[#1450A3] bg-opacity-70">
           <div class="overflow-x-auto">
             <div class="w-full lg:w-1/2 p-4 float-left ">

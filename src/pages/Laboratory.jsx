@@ -1,6 +1,8 @@
 import React from "react";
 import { NavLink } from "react-router-dom";
 import { BiSolidChevronLeft } from "react-icons/bi";
+import { laboratoryData } from "../data";
+
 
 function Laboratory() {
   return (
@@ -30,85 +32,54 @@ function Laboratory() {
       <div className=" bg-gray-100 md:py-1">
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-0 mx-0 lg:mx-32 xl:mx-52 2xl:mx-80 my-7 justify-evenly justify-items-center content-evenly items-start shadow-inner2 text-white">
           <div className="grid grid-rows-2 sm:grid-rows-3 gap-9 h-full w-full bg-[#1450A3] justify-center bg-opacity-80 px-5">
-            <div className="mt-5">
-              <h3 className="font-bold text-lg">Hematology</h3>
-              <ul class="list-disc text-sm xl:text-base">
-                <li>CBC with Platelet - ₱273.00</li>
-                <li>ESR - ₱154.00</li>
-                <li>Clotting/bleeding time - ₱128.00</li>
-                <li>Prothrombin time - ₱910.00</li>
-                <li>Blood typing - ₱75.00</li>
-              </ul>
-            </div>
-            <div>
-              <h3 className="font-bold text-lg mt-2">Clinical Microscopy</h3>
-              <ul class="list-disc text-sm xl:text-base">
-                <li>Urinalysis - ₱65.00</li>
-                <li>Fecalysis - ₱65.00</li>
-                <li>Pregnancy Test - ₱261.000</li>
-                <li>Occult Blood - ₱556.00</li>
-              </ul>
-            </div>
+            {laboratoryData.column1.sections.map((section) => (
+              <div key={section.title} className="mt-5">
+                <h3 className="font-bold text-lg">{section.title}</h3>
+                <ul className="list-disc text-sm xl:text-base">
+                  {section.items.map((item) => (
+                    <li key={item.name}>
+                      {item.name} - ₱{item.price.toLocaleString()}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
             <div className="hidden sm:block">
-            <p className="font-bold text-lg">Schedule: Open 24/7</p>
+              <p className="font-bold text-lg">Schedule: Open 24/7</p>
             </div>
           </div>
 
           <div className="grid grid-row-2 gap-3 h-full w-full bg-[#1450A3] justify-center bg-opacity-75">
-            <div className="my-5 mb-11">
-              <h3 className="font-bold text-lg">Clinical Chemistry</h3>
-              <ul class="list-disc text-sm xl:text-base">
-                <li>Creatinine - ₱157.00</li>
-                <li>BUN - ₱143.00</li>
-                <li>SGPT/ALT - ₱196.00</li>
-                <li>SGOT/AST - ₱200.00</li>
-                <li>Amylase - ₱772.00</li>
-                <li>Albumin - ₱535.00</li>
-                <li>Uric Acid - ₱157.00</li>
-                <li>FBS - ₱143.00</li>
-                <li>RBS - ₱143.00</li>
-                <li>Total Cholesterol - ₱130.00</li>
-                <li>HDL - ₱285.00</li>
-                <li>LDL - ₱285.00</li>
-                <li>Triglycerides - ₱315.00</li>
-                <li>HbA1c - ₱1,164.00</li>
-                <li>Total Bilirubin - ₱297.00</li>
-                <li>Magnesium - ₱689.00</li>
-                <li>ALP - ₱560.34</li>
-                <li>Phosphorus - ₱315.00</li>
-              </ul>
-            </div>
+            {laboratoryData.column2.sections.map((section) => (
+              <div key={section.title} className="my-5 mb-11">
+                <h3 className="font-bold text-lg">{section.title}</h3>
+                <ul className="list-disc text-sm xl:text-base">
+                  {section.items.map((item) => (
+                    <li key={item.name}>
+                      {item.name} - ₱{item.price.toLocaleString()}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
           </div>
 
           <div className="grid h-full w-full bg-[#1450A3] justify-center bg-opacity-70 px-10">
-            <div className="mt-5">
-              <h3 className="font-bold text-lg">Electrolytes</h3>
-              <ul class="list-disc text-sm xl:text-base">
-                <li>Sodium - ₱249.00</li>
-                <li>Potassium - ₱231.00</li>
-                <li>Ionized Calcium - ₱700.00</li>
-                <li>Chloride - ₱261.00</li>
-              </ul>
-            </div>
-            <div>
-              <h3 className="font-bold text-lg mt-5 sm:mt-0">Serology</h3>
-              <ul class="list-disc text-sm xl:text-base mb-7 sm:mb-0">
-                <li>COVID-19 Rapid Antigen Test - ₱900.00</li>
-                <li>RTPCR SWAB - ₱1200.00</li>
-                <li>HBsAg - ₱273.00</li>
-                <li>Troponin I/Trop I - ₱1,045.00</li>
-                <li>C-Reactive Protein/CRP - ₱653.00</li>
-                <li>Prostate Specific Antigen/PSA - ₱1,045.00</li>
-                <li>T3 - ₱802.00</li>
-                <li>T4 - ₱802.00</li>
-                <li>TSH - ₱1,158.00</li>
-                <li>Typhidot - ₱915.00</li>
-                <li>Dengue Test - ₱1,045.00</li>
-                <li>Anti-HAV - ₱990.00</li>
-              </ul>
-            </div>
+            {laboratoryData.column3.sections.map((section) => (
+              <div key={section.title} className="mt-5">
+                <h3 className="font-bold text-lg">{section.title}</h3>
+                <ul className="list-disc text-sm xl:text-base mb-7 sm:mb-0">
+                  {section.items.map((item) => (
+                    <li key={item.name}>
+                      {item.name} - ₱{item.price.toLocaleString()}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+
             <div className="block sm:hidden">
-            <p className="mb-3 font-bold text-lg flex justify-start">Schedule: <span className="ml-2">Open 24/7</span></p>
+              <p className="mb-3 font-bold text-lg flex justify-start">Schedule: <span className="ml-2">Open 24/7</span></p>
             </div>
           </div>
         </div>

@@ -372,3 +372,92 @@ export const doctorsData = [
     Position: "Anesthesiology",
   },
 ];
+
+export const laboratoryData = {
+  column1: {
+    sections: [
+      {
+        title: "Hematology",
+        items: [
+          { name: "CBC with Platelet", price: 273 },
+          { name: "ESR", price: 154 },
+          { name: "Clotting/bleeding time", price: 128 },
+          { name: "Prothrombin time", price: 910 },
+          { name: "Blood typing", price: 75 },
+        ],
+      },
+      {
+        title: "Clinical Microscopy",
+        items: [
+          { name: "Urinalysis", price: 65 },
+          { name: "Fecalysis", price: 65 },
+          { name: "Pregnancy Test", price: 261 },
+          { name: "Occult Blood", price: 556 },
+        ],
+      },
+    ],
+    schedule: "Open 24/7",
+  },
+
+  column2: {
+    sections: [
+      {
+        title: "Clinical Chemistry",
+        items: [
+          { name: "Creatinine", price: 157 },
+          { name: "BUN", price: 143 },
+          { name: "SGPT/ALT", price: 196 },
+          { name: "SGOT/AST", price: 200 },
+          { name: "Amylase", price: 772 },
+          { name: "Albumin", price: 535 },
+          { name: "Uric Acid", price: 157 },
+          { name: "FBS", price: 143 },
+          { name: "RBS", price: 143 },
+          { name: "Total Cholesterol", price: 130 },
+          { name: "HDL", price: 285 },
+          { name: "LDL", price: 285 },
+          { name: "Triglycerides", price: 315 },
+          { name: "HbA1c", price: 1164 },
+          { name: "Total Bilirubin", price: 297 },
+          { name: "Magnesium", price: 689 },
+          { name: "ALP", price: 560.34 },
+          { name: "Phosphorus", price: 315 },
+        ],
+      },
+    ],
+  },
+
+  column3: {
+    sections: [
+      {
+        title: "Electrolytes",
+        items: [
+          { name: "Sodium", price: 249 },
+          { name: "Potassium", price: 231 },
+          { name: "Ionized Calcium", price: 700 },
+          { name: "Chloride", price: 261 },
+        ],
+      },
+      {
+        title: "Serology",
+        items: [
+          { name: "COVID-19 Rapid Antigen Test", price: 900 },
+          { name: "RTPCR SWAB", price: 1200 },
+          { name: "HBsAg", price: 273 },
+          { name: "Troponin I/Trop I", price: 1045 },
+          { name: "C-Reactive Protein/CRP", price: 653 },
+          { name: "Prostate Specific Antigen/PSA", price: 1045 },
+          { name: "T3", price: 802 },
+          { name: "T4", price: 802 },
+          { name: "TSH", price: 1158 },
+          { name: "Typhidot", price: 915 },
+          { name: "Dengue Test", price: 1045 },
+          { name: "Anti-HAV", price: 990 },
+        ],
+      },
+    ],
+    schedule: "Open 24/7",
+  },
+};
+
+
