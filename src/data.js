@@ -396,7 +396,6 @@ export const laboratoryData = {
         ],
       },
     ],
-    schedule: "Open 24/7",
   },
 
   column2: {
@@ -456,7 +455,6 @@ export const laboratoryData = {
         ],
       },
     ],
-    schedule: "Open 24/7",
   },
 };
 

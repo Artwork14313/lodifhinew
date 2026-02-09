@@ -1,6 +1,6 @@
 import React from "react";
 import { Route, Routes } from "react-router-dom";
-import Home from "../../pages/Home"
+import Home from "../../pages/Home";
 import Services from "../../pages/Services";
 import About from "../../pages/About";
 import Contact from "../../pages/Contact";
@@ -17,7 +17,8 @@ import LoginForm from "../LoginForm";
 import SignUp from "../SignUp";
 import Profile from "../../pages/Profile";
 import ProtectedRoute from "../ProtectedRoute";
-
+import PublicRoute from "../PublicRoute";
+import NotFound from "../../pages/NotFound";
 
 function NavPage() {
   return (
@@ -36,10 +37,17 @@ function NavPage() {
         <Route path="/about/doctors" element={<Doctors />} />
         <Route path="/about/patientrooms" element={<PatientRooms />} />
         <Route path="/contact" element={<Contact />} />
-        <Route path="/login" element={<LoginForm />} />
-        <Route path="/logout" element={<LoginForm />} />
-        <Route path="/register" element={<ProtectedRoute element={SignUp} />} />
+
+        {/* Public routes */}
+        <Route path="/login" element={<PublicRoute element={LoginForm} />} />
+
+
+        {/* Protected routes */}
         <Route path="/profile" element={<ProtectedRoute element={Profile} />} />
+        <Route path="/profile/register" element={<ProtectedRoute element={SignUp} />} />
+
+        {/* Catch-all 404 route */}
+        <Route path="*" element={<NotFound />} />
       </Routes>
     </div>
   );
