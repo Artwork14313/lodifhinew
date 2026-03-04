@@ -182,6 +182,12 @@ const Navbar = () => {
                   My Profile
                 </NavLink>
                 <NavLink
+                  to="/profile/adminPannel"
+                  className={pathname === "/profile/adminPannel" ? "text-white px-3 py-3 block bg-[#337CCF] duration-500" : "text-white px-3 py-3 block hover:bg-[#337CCF] duration-500"}
+                >
+                  Admin Pannel
+                </NavLink>
+                <NavLink
                   to="/profile/register"
                   className={pathname === "/profile/register" ? "text-white px-3 py-3 block bg-[#337CCF] duration-500" : "text-white px-3 py-3 block hover:bg-[#337CCF] duration-500"}
                 >

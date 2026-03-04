@@ -1,126 +1,130 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { contactData } from "../data";
 
 function Contact() {
+  const [contacts, setContacts] = useState([]);
   const [message, setMessage] = useState("");
-
-  const handleInputChange = (event) => {
-    setMessage(event.target.value);
-  };
-
   const [name, setName] = useState("");
-
-  const handleNameChange = (event) => {
-    setName(event.target.value);
-  };
-
   const [mobileNo, setMobileNo] = useState("");
 
-  const handleMobileChange = (event) => {
-    setMobileNo(event.target.value);
-  };
+  // 🔹 Load contacts from API with fallback
+  useEffect(() => {
+    const loadContacts = async () => {
+      try {
+        const response = await fetch("http://localhost/lodifhinew-main/api/contacts.php");
 
-  const handleSendEmail = () => {
-    const encodedMobileNo = encodeURIComponent(mobileNo);
-    const encodedMessage = encodeURIComponent(message);
-    const encodedName = encodeURIComponent(name);
-    const mailtoLink = `mailto:lodifhi@gmail.com?body=Name: ${encodedName} | Mobile Number: ${encodedMobileNo} | Message: ${encodedMessage}`;
+        if (!response.ok) {
+          throw new Error("API not reachable");
+        }
 
-    // Open the default email client
-    if (message.length > 0) {
-      window.location.href = mailtoLink;
+        const data = await response.json();
+        setContacts(data);
+      } catch (error) {
+        console.log("Using fallback data:", error.message);
+        setContacts(contactData); // fallback
+      }
+    };
+
+    loadContacts();
+  }, []);
+
+  const handleSendEmail = (e) => {
+      e.preventDefault();
+
+    if (name && message && mobileNo) {
+      const subject = encodeURIComponent("Inquire Services");
+      const body = encodeURIComponent(message + "\n\nNumber: " + mobileNo + "\nFrom: " + name);
+      window.location.href = `mailto:lodifhi@gmail.com?subject=${subject}&body=${body}`;
+    } else {
+      alert("Please fill in both fields.");
     }
   };
+
+  const formatNumber = (num) => {
+    if (num.length < 11) {
+      return `${num.slice(0, 3)} ${num.slice(3, 6)} ${num.slice(6, 10)}`;
+    }
+    return `${num.slice(0, 4)} ${num.slice(4, 7)} ${num.slice(7, 11)}`;
+  };
+
   return (
     <>
-      <div className="flex border-b-4 border-blue-400 ">
+      {/* Header */}
+      <div className="flex border-b-4 border-blue-400">
         <div className="relative w-full h-[100px] lg:h-[200px] overflow-hidden flex justify-center items-center">
           <img
             src="/admitting.jpg"
-            className="w-full h-[100px] lg:h-[250px] object-cover opacity-50 bg-center bg-cover object-center sm:object-bottom"
-            alt="Pharmacy"
+            className="w-full h-[100px] lg:h-[250px] object-cover opacity-50"
+            alt="Contact"
           />
-          <h1 className="flex justify-center items-center absolute text-2xl lg:text-5xl font-bold text-[#337CCF] cursor-default tracking-widest">
+          <h1 className="absolute text-2xl lg:text-5xl font-bold text-[#337CCF] tracking-widest">
             Contact Us
           </h1>
         </div>
       </div>
 
-      <form>
-        <div className="grid sm:grid-cols-2 lg:grid-cols-6 gap-5 my-5 sm:my-5">
-          <div className="bg-[#337CCF] row-span-2 lg:col-start-2 lg:col-end-4 w-full h-auto rounded-lg px-5 py-5">
-            <label className="text-white mb-2 cursor-default">Full Name</label>
+      <form onSubmit={handleSendEmail}>
+        <div className="grid sm:grid-cols-2 lg:grid-cols-6 gap-5 my-5">
+
+          {/* Contact Form */}
+          <div className="bg-[#337CCF] row-span-2 lg:col-start-2 lg:col-end-4 rounded-lg px-5 py-5">
+            <label className="text-white">Full Name</label>
             <input
               required
               value={name}
-              onChange={handleNameChange}
-              className="mt-2 border rounded-md p-2 w-full h-auto focus:outline-blue-300"
-            ></input>
-            <div className="grid grid-cols-2 gap-2 mb-2">
-              <label className="text-white mt-2 cursor-default">
-                Mobile Number
-              </label>
-              <label className="text-white mt-2 cursor-default">
-                Email Address
-              </label>
+              onChange={(e) => setName(e.target.value)}
+              className="mt-2 border rounded-md p-2 w-full mb-2"
+            />
+
+              <label className="text-white my-2">Mobile Number</label>
+
               <input
                 required
                 value={mobileNo}
-                onChange={handleMobileChange}
-                type="number"
-                className="border rounded-md p-2 w-full h-auto focus:outline-blue-300 [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-              ></input>
-              <input
-                required
-                type="email"
-                className="border rounded-md p-2 w-full h-auto focus:outline-blue-300"
-              ></input>
-            </div>
+                onChange={(e) => setMobileNo(e.target.value)}
+                type="text"
+                className="border rounded-md p-2 w-full my-2"
+              />
 
-            <label className="text-white my-2 cursor-default">Message</label>
+            <label className="text-white my-2">Message</label>
             <textarea
               required
-              type="text"
               value={message}
-              onChange={handleInputChange}
-              class="mt-2 resize-none border rounded-md p-2 w-full h-72  focus:outline-blue-300"
-            ></textarea>
+              onChange={(e) => setMessage(e.target.value)}
+              className="mt-2 resize-none border rounded-md p-2 w-full h-72"
+            />
+
             <button
               type="submit"
-              onClick={handleSendEmail}
-              className="bg-white font-bold xl:text-2xl mt-4 text-[#337CCF] hover:bg-blue-400 hover:text-white  h-12 w-1/2 rounded-lg"
+              className="bg-white font-bold mt-4 text-[#337CCF] hover:bg-blue-400 hover:text-white h-12 w-1/2 rounded-lg"
             >
               Send
             </button>
           </div>
 
-          <div className=" text-gray-600 lg:col-start-4 lg:col-end-6 mt-5 lg:mt-0">
-            <p className="mb-1 ml-4 sm:ml-0 font-bold">CONNECT WITH US</p>
-            <table class="min-w-full bg-white border border-gray-300">
+          {/* Contact Table */}
+          <div className="text-gray-600 lg:col-start-4 lg:col-end-6 mt-5 lg:mt-0">
+            <p className="mb-1 font-bold">CONNECT WITH US</p>
+
+            <table className="min-w-full bg-white border border-gray-300">
               <thead>
                 <tr>
-                  <th class="py-2 px-4 border-b text-left">Department</th>
-                  <th class="py-2 px-4 border-b text-left">Number</th>
+                  <th className="py-2 px-4 border-b text-left">Department</th>
+                  <th className="py-2 px-4 border-b text-left">Number</th>
                 </tr>
               </thead>
-              {contactData.map((contact) => (
-                <tbody>
-                  <tr>
-                    <td class="py-2 px-4 border-b">{contact.department}</td>
-                    <td class="py-2 px-4 border-b">
-                      {contact.contactNum.length < 11
-                        ? contact.contactNum.slice(0, 3)
-                        : contact.contactNum.slice(0, 4)}{" "}
-                      {contact.contactNum.length < 11
-                        ? contact.contactNum.slice(3, 6)
-                        : contact.contactNum.slice(4, 7)}{" "}
-                      {contact.contactNum.length < 11
-                        ? contact.contactNum.slice(6, 10)
-                        : contact.contactNum.slice(7, 11)}
+              <tbody>
+                {contacts.map((contact) => (
+                  <tr key={contact.id}>
+                    <td className="py-2 px-4 border-b">
+                      {contact.department}
+                    </td>
+                    <td className="py-2 px-4 border-b">
+                      {formatNumber(contact.contactNum)}
                     </td>
                   </tr>
-                </tbody>
-              ))}
+                ))}
+              </tbody>
             </table>
           </div>
 
@@ -137,6 +141,7 @@ function Contact() {
             ></iframe>
           </div>
         </div>
+        
       </form>
     </>
   );

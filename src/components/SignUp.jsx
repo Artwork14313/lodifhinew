@@ -2,142 +2,149 @@ import React, { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
+const API_URL = import.meta.env.VITE_API_URL_REGISTER;
+
 const SignUp = () => {
-  // const [email, setEmail] = useState("");
-  // const [password, setPassword] = useState("");
-  // const [lastName, setLastName] = useState("");
-  // const [firstName, setFirstName] = useState("");
+  const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
     email: "",
     firstName: "",
     lastName: "",
-    username: "",
     password: "",
   });
 
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+
   const handleChange = (e) => {
-    const { name, value } = e.target;
-    if (name === "email") {
-      setFormData({
-        ...formData,
-        email: value,
-        username: value, // Copy email value to username
-      });
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value,
+    });
+  };
+
+const handleRegister = async (e) => {
+  e.preventDefault();
+  setError("");
+
+  if (!API_URL) {
+    return setError("API URL not configured.");
+  }
+
+  // Trim input fields
+  const email = formData.email.trim();
+  const firstName = formData.firstName.trim();
+  const lastName = formData.lastName.trim();
+  const password = formData.password;
+
+  if (!firstName || !lastName || !email || !password) {
+    return setError("All fields are required.");
+  }
+
+  if (password.length < 6) {
+    return setError("Password must be at least 6 characters.");
+  }
+
+  try {
+    setLoading(true);
+
+    const payload = {
+      firstName,
+      lastName,
+      email,
+      password,
+    };
+
+    const response = await axios.post(API_URL, payload, {
+      headers: { "Content-Type": "application/json" },
+    });
+
+    if (response.data.success) {
+      navigate("/profile");
     } else {
-      setFormData({
-        ...formData,
-        [name]: value,
-      });
+      setError(response.data.error || "Registration failed.");
     }
-  };
 
-  const navigate = useNavigate();
+  } catch (err) {
+    console.error("REGISTER ERROR:", err.response || err);
+    setError(
+      err.response?.data?.error || "Registration failed. Please try again."
+    );
+  } finally {
+    setLoading(false);
+  }
+};
 
-  // const handleSubmit = (e) => {
-  //   e.preventDefault();
-  //   axios.post('http://localhost:3000/register', {firstName, lastName, email, password})
-  //   .then(result => console.log(result))
-  //   navigate('/login')
-  //   .catch(err => console.log(err))
-  // }
-
-  const handleRegister = async (e) => {
-    e.preventDefault();
-    try {
-      const response = await axios.post(
-        "http://localhost:3000/register",
-        formData
-      );
-      console.log(response.data);
-      navigate("/profile"); // Redirect to login page or another page
-    } catch (error) {
-      console.error(
-        "Registration failed:",
-        error.response?.data?.message || error.message
-      );
-    }
-  };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-100 overflow-hidden">
-      <div className="w-full max-w-md ">
+    <div className="flex items-center justify-center min-h-screen bg-gray-100">
+      <div className="w-full max-w-md">
         <form
-          className="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-[100px]"
-          // action="/register" method="POST"
+          className="bg-white shadow-md rounded px-8 pt-6 pb-8"
           onSubmit={handleRegister}
         >
-          <div className="flex gap-2 justify-evenly">
-            <div className="input-group w-1/2">
+          <div className="flex gap-2">
+            <div className="w-1/2">
               <input
                 required
-                className="border-[1.2px] border-gray-300 sm:text-sm"
+                className="border border-gray-300 w-full p-2"
                 type="text"
                 name="lastName"
+                placeholder="Last Name"
                 value={formData.lastName}
                 onChange={handleChange}
               />
-              <label>Last Name</label>
             </div>
 
-            <div className="input-group w-1/2">
+            <div className="w-1/2">
               <input
                 required
-                className="border-[1.2px] border-gray-300 sm:text-sm"
+                className="border border-gray-300 w-full p-2"
                 type="text"
                 name="firstName"
+                placeholder="First Name"
                 value={formData.firstName}
                 onChange={handleChange}
               />
-              <label>First Name</label>
             </div>
           </div>
 
-          <div className="input-group mt-0">
+          <div className="mt-4">
             <input
               required
-              className={`border-[1.2px] border-gray-300 sm:text-sm ${
-                formData.email.length > 0 &&
-                `invalid:border-red-500 invalid:text-red-600 focus:invalid:border-red-500`
-              }`}
+              className="border border-gray-300 w-full p-2"
               type="email"
               name="email"
-              value={formData.email && formData.username}
+              placeholder="Email"
+              value={formData.email}
               onChange={handleChange}
             />
-            <label>Email</label>
           </div>
 
-          <div className="input-group hidden">
+          <div className="mt-4">
             <input
               required
-              className="border-[1.2px] border-gray-300 sm:text-sm"
-              type="text"
-              name="username"
-              value={formData.username}
-              onChange={handleChange}
-            />
-            <label>Username</label>
-          </div>
-
-          <div className="input-group">
-            <input
-              required
-              className="border-[1.2px] border-gray-300 sm:text-sm"
+              className="border border-gray-300 w-full p-2"
               type="password"
               name="password"
+              placeholder="Password"
               value={formData.password}
               onChange={handleChange}
             />
-            <label>Password</label>
           </div>
 
-          <div className="flex items-center justify-between pb-3">
+          {error && (
+            <p className="text-red-500 text-sm mt-3">{error}</p>
+          )}
+
+          <div className="mt-6">
             <button
-              className="bg-[#337CCF] hover:bg-blue-700 text-white w-full font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+              disabled={loading}
+              className="bg-[#337CCF] hover:bg-blue-700 text-white w-full font-bold py-2 px-4 rounded disabled:opacity-50"
               type="submit"
             >
-              Sign Up
+              {loading ? "Creating Account..." : "Sign Up"}
             </button>
           </div>
         </form>

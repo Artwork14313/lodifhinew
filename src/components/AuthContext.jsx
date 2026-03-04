@@ -6,57 +6,66 @@ const AuthContext = createContext();
 export const useAuth = () => useContext(AuthContext);
 
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState(null);       // Stores logged-in user
+  const [loading, setLoading] = useState(true); // True while checking session
 
+  const API_BASE = "http://localhost/lodifhinew-main/api"; // change if needed
+
+  // Check session on mount
   useEffect(() => {
-    // Check if user is logged in on initial render
-    axios.get("http://localhost/lodifhinew-main/api/checkSession.php", {
-      withCredentials: true,
-    })
-      .then((res) => {
+    const checkSession = async () => {
+      try {
+        const res = await axios.get(`${API_BASE}/checkSession.php`, {
+          withCredentials: true,
+        });
+
         if (res.data.loggedIn) setUser(res.data.user);
         else setUser(null);
-      })
-      .catch(() => setUser(null));
+      } catch (err) {
+        console.error("Session check failed:", err);
+        setUser(null);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    checkSession();
   }, []);
 
+  // Login function
   const login = async (email, password) => {
     try {
-      const response = await axios.post(
-        "http://localhost/lodifhinew-main/api/login.php",
+      const res = await axios.post(
+        `${API_BASE}/login.php`,
         { email, password },
         { withCredentials: true }
       );
 
-      if (response.data.loggedIn) {
-        setUser(response.data.user); // update context state
+      if (res.data.loggedIn) {
+        setUser(res.data.user);
         return true;
       } else {
         return false;
       }
-    } catch (error) {
-      console.error("Login failed:", error);
+    } catch (err) {
+      console.error("Login failed:", err);
       return false;
     }
   };
 
+  // Logout function
   const logout = async () => {
     try {
-      await axios.post(
-        "http://localhost/lodifhinew-main/api/logout.php",
-        {},
-        { withCredentials: true }
-      );
-      setUser(null); // update context state immediately
-    } catch (error) {
-      console.error("Logout failed:", error);
+      await axios.post(`${API_BASE}/logout.php`, {}, { withCredentials: true });
+      setUser(null);
+    } catch (err) {
+      console.error("Logout failed:", err);
     }
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, logout }}>
+    <AuthContext.Provider value={{ user, login, logout, loading }}>
       {children}
     </AuthContext.Provider>
   );
 };
-

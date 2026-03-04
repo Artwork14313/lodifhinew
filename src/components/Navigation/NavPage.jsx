@@ -19,6 +19,7 @@ import Profile from "../../pages/Profile";
 import ProtectedRoute from "../ProtectedRoute";
 import PublicRoute from "../PublicRoute";
 import NotFound from "../../pages/NotFound";
+import AdminPannel from "../../pages/AdminPannel";
 
 function NavPage() {
   return (
@@ -44,6 +45,7 @@ function NavPage() {
 
         {/* Protected routes */}
         <Route path="/profile" element={<ProtectedRoute element={Profile} />} />
+        <Route path="/profile/adminPannel" element={<ProtectedRoute element={AdminPannel} />} />
         <Route path="/profile/register" element={<ProtectedRoute element={SignUp} />} />
 
         {/* Catch-all 404 route */}
