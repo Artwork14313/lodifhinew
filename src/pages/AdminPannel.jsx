@@ -6,6 +6,7 @@ import { RiDeleteBin6Line } from "react-icons/ri";
 import { PiPaperPlaneTiltFill } from "react-icons/pi";
 import { ImCancelCircle } from "react-icons/im";
 import { FaFolderPlus } from "react-icons/fa6";
+import Swal from "sweetalert2";
 
 function AdminPannel() {
   const { user } = useAuth();
@@ -81,17 +82,76 @@ function AdminPannel() {
   };
 
   const handleUpdate = async () => {
-    try {
-      await fetch("http://localhost/lodifhinew-main/api/contacts.php", {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(editData),
-      });
 
-      setIsModalOpen(false);
-      fetchContacts(); // refresh table
+    // Validation
+    const fields = [
+      { key: "contactNum", label: "Contact Number" },
+      { key: "department", label: "Department" }
+    ];
+
+    for (let field of fields) {
+      if (!editData[field.key] || editData[field.key].trim() === "") {
+
+        document.activeElement.blur(); // prevent aria-hidden warning
+
+        Swal.fire({
+          icon: "warning",
+          title: "Missing Field",
+          text: `${field.label} cannot be empty.`,
+          confirmButtonText: "OK",
+          buttonsStyling: false,
+          customClass: {
+            confirmButton:
+              "bg-[#337CCF] text-white px-5 py-2 rounded hover:bg-blue-600",
+          },
+        });
+
+        return; // stop update
+      }
+    }
+
+    try {
+      const res = await fetch(
+        "http://localhost/lodifhinew-main/api/contacts.php",
+        {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(editData),
+        }
+      );
+
+      const data = await res.json();
+
+      if (res.ok) {
+        setIsModalOpen(false);
+        fetchContacts();
+
+        Swal.fire({
+          icon: "success",
+          title: "Updated Successfully",
+          text: "Contact information has been updated.",
+          confirmButtonText: "OK",
+          buttonsStyling: false,
+          customClass: {
+            confirmButton:
+              "bg-[#337CCF] text-white px-5 py-2 rounded hover:bg-blue-600",
+          },
+        });
+      } else {
+        Swal.fire({
+          icon: "error",
+          title: "Update Failed",
+          text: data?.error || "Something went wrong.",
+        });
+      }
     } catch (error) {
       console.error("Update failed:", error);
+
+      Swal.fire({
+        icon: "error",
+        title: "Server Error",
+        text: "Unable to update contact. Please try again.",
+      });
     }
   };
 
@@ -161,9 +221,9 @@ function AdminPannel() {
             ))}
           </tbody>
         </table>
-        <div className="my-2"><button
+        <div className="my-2 flex justify-end"><button
           onClick={() => setIsAddModalOpen(true)}
-          className="bg-green-500 text-white px-2 py-2 rounded hover:bg-green-700"
+          className="bg-blue-500 text-white px-2 py-2 rounded hover:bg-blue-700"
         >
           <FaFolderPlus />
         </button></div>
@@ -306,16 +366,16 @@ function AdminPannel() {
             <div className="flex justify-end space-x-2">
               <button
                 onClick={() => setIsAddModalOpen(false)}
-                className="bg-gray-400 text-white px-4 py-1 rounded"
+                className="bg-gray-700 text-white px-4 py-1 rounded hover:bg-gray-500"
               >
-                Cancel
+                <ImCancelCircle />
               </button>
 
               <button
                 onClick={handleAdd}
-                className="bg-green-600 text-white px-4 py-1 rounded"
+                className="bg-green-600 text-white px-4 py-1 rounded hover:bg-green-400"
               >
-                Save
+                <PiPaperPlaneTiltFill />
               </button>
             </div>
           </div>

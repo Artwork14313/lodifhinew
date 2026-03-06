@@ -31,18 +31,21 @@ switch ($method) {
     // GET - Fetch Contacts
     // ========================
     case 'GET':
-        $sql = "SELECT id, department, contactNum 
-                FROM contact_directory 
-                WHERE isActive = 1
-                ORDER BY id ASC";
 
-        $result = $conn->query($sql);
+        $stmt = $conn->prepare(
+            "SELECT id, department, contactNum
+             FROM contact_directory
+             WHERE isActive = 1
+             ORDER BY id ASC"
+        );
+
+        $stmt->execute();
+        $result = $stmt->get_result();
+
         $contacts = [];
 
-        if ($result) {
-            while ($row = $result->fetch_assoc()) {
-                $contacts[] = $row;
-            }
+        while ($row = $result->fetch_assoc()) {
+            $contacts[] = $row;
         }
 
         echo json_encode($contacts);
@@ -53,20 +56,35 @@ switch ($method) {
     // POST - Add Contact
     // ========================
     case 'POST':
+
         $data = json_decode(file_get_contents("php://input"), true);
 
-        $department = $conn->real_escape_string($data['department']);
-        $contactNum = $conn->real_escape_string($data['contactNum']);
+        if (
+            empty($data['department']) ||
+            empty($data['contactNum'])
+        ) {
+            http_response_code(400);
+            echo json_encode(["error" => "Department and Contact Number are required"]);
+            exit();
+        }
 
-        $sql = "INSERT INTO contact_directory (department, contactNum, isActive)
-                VALUES ('$department', '$contactNum', 1)";
+        $department = trim($data['department']);
+        $contactNum = trim($data['contactNum']);
 
-        if ($conn->query($sql)) {
+        $stmt = $conn->prepare(
+            "INSERT INTO contact_directory (department, contactNum, isActive)
+             VALUES (?, ?, 1)"
+        );
+
+        $stmt->bind_param("ss", $department, $contactNum);
+
+        if ($stmt->execute()) {
             echo json_encode(["message" => "Contact added successfully"]);
         } else {
             http_response_code(400);
             echo json_encode(["error" => "Insert failed"]);
         }
+
         break;
 
 
@@ -74,23 +92,38 @@ switch ($method) {
     // PUT - Update Contact
     // ========================
     case 'PUT':
+
         $data = json_decode(file_get_contents("php://input"), true);
 
+        if (
+            empty($data['id']) ||
+            empty($data['department']) ||
+            empty($data['contactNum'])
+        ) {
+            http_response_code(400);
+            echo json_encode(["error" => "ID, Department and Contact Number are required"]);
+            exit();
+        }
+
         $id = (int)$data['id'];
-        $department = $conn->real_escape_string($data['department']);
-        $contactNum = $conn->real_escape_string($data['contactNum']);
+        $department = trim($data['department']);
+        $contactNum = trim($data['contactNum']);
 
-        $sql = "UPDATE contact_directory 
-                SET department = '$department',
-                    contactNum = '$contactNum'
-                WHERE id = $id";
+        $stmt = $conn->prepare(
+            "UPDATE contact_directory
+             SET department = ?, contactNum = ?
+             WHERE id = ?"
+        );
 
-        if ($conn->query($sql)) {
+        $stmt->bind_param("ssi", $department, $contactNum, $id);
+
+        if ($stmt->execute()) {
             echo json_encode(["message" => "Contact updated successfully"]);
         } else {
             http_response_code(400);
             echo json_encode(["error" => "Update failed"]);
         }
+
         break;
 
 
@@ -98,19 +131,32 @@ switch ($method) {
     // DELETE - Soft Delete
     // ========================
     case 'DELETE':
+
         $data = json_decode(file_get_contents("php://input"), true);
+
+        if (empty($data['id'])) {
+            http_response_code(400);
+            echo json_encode(["error" => "ID is required"]);
+            exit();
+        }
+
         $id = (int)$data['id'];
 
-        $sql = "UPDATE contact_directory 
-                SET isActive = 0
-                WHERE id = $id";
+        $stmt = $conn->prepare(
+            "UPDATE contact_directory
+             SET isActive = 0
+             WHERE id = ?"
+        );
 
-        if ($conn->query($sql)) {
+        $stmt->bind_param("i", $id);
+
+        if ($stmt->execute()) {
             echo json_encode(["message" => "Contact deleted successfully"]);
         } else {
             http_response_code(400);
             echo json_encode(["error" => "Delete failed"]);
         }
+
         break;
 
 

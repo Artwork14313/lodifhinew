@@ -13,10 +13,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 }
 
 if (isset($_SESSION["user_id"])) {
+
     echo json_encode([
         "loggedIn" => true,
-        "user" => $_SESSION["email"]
+        "user" => [
+            "id" => $_SESSION["user_id"],
+            "fullName" => $_SESSION["fullName"],
+            "email" => $_SESSION["email"]
+        ]
     ]);
+
 } else {
-    echo json_encode(["loggedIn" => false]);
+    echo json_encode([
+        "loggedIn" => false
+    ]);
 }
+?>

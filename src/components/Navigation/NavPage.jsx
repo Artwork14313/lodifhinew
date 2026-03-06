@@ -45,7 +45,7 @@ function NavPage() {
 
         {/* Protected routes */}
         <Route path="/profile" element={<ProtectedRoute element={Profile} />} />
-        <Route path="/profile/adminPannel" element={<ProtectedRoute element={AdminPannel} />} />
+        <Route path="/profile/admin_pannel" element={<ProtectedRoute element={AdminPannel} />} />
         <Route path="/profile/register" element={<ProtectedRoute element={SignUp} />} />
 
         {/* Catch-all 404 route */}
