@@ -14,6 +14,7 @@ function AdminPannel() {
 
   const [activeTab, setActiveTab] = useState("contact");
   const [contacts, setContacts] = useState([]);
+  const [doctors, setDoctors] = useState([]);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editData, setEditData] = useState({
@@ -37,6 +38,8 @@ function AdminPannel() {
   useEffect(() => {
     if (activeTab === "contact") {
       fetchContacts();
+    } else if (activeTab === "doctors") {
+      fetchDoctors();
     }
   }, [activeTab]);
 
@@ -52,12 +55,40 @@ function AdminPannel() {
     }
   };
 
+  const fetchDoctors = async () => {
+    try {
+      const res = await fetch(
+        "http://localhost/lodifhinew-main/api/doctors.php"
+      );
+      const data = await res.json();
+      setDoctors(data);
+    } catch (error) {
+      console.error("Error fetching contacts:", error);
+    }
+  };
+
   const handleDelete = async (id) => {
-    if (!window.confirm("Are you sure you want to delete this contact?"))
-      return;
+
+    const result = await Swal.fire({
+      title: "Are you sure?",
+      text: "This contact will be deleted.",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Yes, delete it",
+      cancelButtonText: "Cancel",
+      buttonsStyling: false,
+      customClass: {
+        confirmButton:
+          "bg-red-600 text-white px-5 py-2 rounded mr-2 hover:bg-red-700",
+        cancelButton:
+          "bg-gray-400 text-white px-5 py-2 rounded hover:bg-gray-500",
+      }
+    });
+
+    if (!result.isConfirmed) return;
 
     try {
-      await fetch(
+      const res = await fetch(
         "http://localhost/lodifhinew-main/api/contacts.php",
         {
           method: "DELETE",
@@ -66,9 +97,38 @@ function AdminPannel() {
         }
       );
 
-      fetchContacts(); // refresh after delete
+      const data = await res.json();
+
+      if (res.ok) {
+        fetchContacts();
+
+        Swal.fire({
+          icon: "success",
+          title: "Deleted!",
+          text: "Contact has been deleted.",
+          confirmButtonText: "OK",
+          buttonsStyling: false,
+          customClass: {
+            confirmButton:
+              "bg-[#337CCF] text-white px-5 py-2 rounded hover:bg-blue-600",
+          }
+        });
+      } else {
+        Swal.fire({
+          icon: "error",
+          title: "Delete Failed",
+          text: data?.error || "Something went wrong."
+        });
+      }
+
     } catch (error) {
       console.error("Delete failed:", error);
+
+      Swal.fire({
+        icon: "error",
+        title: "Server Error",
+        text: "Unable to delete contact."
+      });
     }
   };
 
@@ -156,23 +216,65 @@ function AdminPannel() {
   };
 
   const handleAdd = async () => {
-    if (!newContact.department || !newContact.contactNum) {
-      alert("Please fill all fields");
-      return;
+    const fields = [
+      { key: "contactNum", label: "Contact Number" },
+      { key: "department", label: "Department" }
+    ];
+
+    for (let field of fields) {
+      if (!newContact[field.key] || !newContact[field.key].trim() === "") {
+
+        document.activeElement.blur(); // prevent aria-hidden warning
+
+        Swal.fire({
+          icon: "warning",
+          title: "Missing Field",
+          text: `${field.label} cannot be empty.`,
+          confirmButtonText: "OK",
+          buttonsStyling: false,
+          customClass: {
+            confirmButton:
+              "bg-[#337CCF] text-white px-5 py-2 rounded hover:bg-blue-600",
+          },
+        });
+
+        return; // stop update
+      }
     }
 
     try {
-      await fetch("http://localhost/lodifhinew-main/api/contacts.php", {
+      const res = await fetch("http://localhost/lodifhinew-main/api/contacts.php", {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
         },
         body: JSON.stringify(newContact)
       });
+      const data = await res.json();
 
-      setIsAddModalOpen(false);
-      setNewContact({ department: "", contactNum: "" });
-      fetchContacts(); // refresh table
+      if (res.ok) {
+        setIsAddModalOpen(false);
+        setNewContact({ department: "", contactNum: "" });
+        fetchContacts(); // refresh table
+
+        Swal.fire({
+          icon: "success",
+          title: "Added Successfully",
+          text: "Contact information has been added.",
+          confirmButtonText: "OK",
+          buttonsStyling: false,
+          customClass: {
+            confirmButton:
+              "bg-[#337CCF] text-white px-5 py-2 rounded hover:bg-blue-600",
+          },
+        });
+      } else {
+        Swal.fire({
+          icon: "error",
+          title: "Update Failed",
+          text: data?.error || "Something went wrong.",
+        });
+      }
     } catch (error) {
       console.error("Add failed:", error);
     }
@@ -203,18 +305,18 @@ function AdminPannel() {
               <tr key={item.id}>
                 <td className="py-2 px-4 border-b">{item.department}</td>
                 <td className="py-2 px-4 border-b">{formatNumber(item.contactNum)}</td>
-                <td className="py-2 px-4 border-b text-center space-x-2">
+                <td className="py-2 px-4 border-b text-center space-x-2 flex flex-row justify-center">
                   <button
                     onClick={() => handleEdit(item)}
-                    className="bg-blue-500 text-white px-2 py-2 rounded hover:bg-blue-700"
+                    className="flex items-center bg-blue-500 text-white px-2 py-1 rounded hover:bg-blue-700"
                   >
-                    <BiEdit />
+                    <BiEdit /> Edit
                   </button>
                   <button
                     onClick={() => handleDelete(item.id)}
-                    className="bg-red-500 text-white px-2 py-2 rounded hover:bg-red-700"
+                    className="flex items-center bg-red-500 text-white px-2 py-1 rounded hover:bg-red-700"
                   >
-                    <RiDeleteBin6Line />
+                    <RiDeleteBin6Line /> Delete
                   </button>
                 </td>
               </tr>
@@ -223,9 +325,53 @@ function AdminPannel() {
         </table>
         <div className="my-2 flex justify-end"><button
           onClick={() => setIsAddModalOpen(true)}
-          className="bg-blue-500 text-white px-2 py-2 rounded hover:bg-blue-700"
+          className="flex items-center gap-2 bg-green-500 text-white px-2 py-2 rounded hover:bg-green-700"
         >
-          <FaFolderPlus />
+          <FaFolderPlus /> New
+        </button></div>
+      </div>
+    );
+  };
+
+  const renderDoctorsTable = () => {
+    return (
+      <div>
+        <table className="min-w-full bg-white border border-gray-300">
+          <thead>
+            <tr className="bg-gray-100">
+              <th className="py-2 px-4 border-b text-left">Name</th>
+              <th className="py-2 px-4 border-b text-left">Specialization</th>
+              <th className="py-2 px-4 border-b text-center">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {doctors.map((item) => (
+              <tr key={item.id}>
+                <td className="py-2 px-4 border-b">{item.fullname}</td>
+                <td className="py-2 px-4 border-b">{item.specialization}</td>
+                <td className="py-2 px-4 border-b text-center space-x-2 flex flex-row justify-center">
+                  <button
+                    onClick={() => handleEdit(item)}
+                    className="flex items-center bg-blue-500 text-white px-2 py-1 rounded hover:bg-blue-700"
+                  >
+                    <BiEdit /> Edit
+                  </button>
+                  <button
+                    onClick={() => handleDelete(item.id)}
+                    className="flex items-center bg-red-500 text-white px-2 py-1 rounded hover:bg-red-700"
+                  >
+                    <RiDeleteBin6Line /> Delete
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+        <div className="my-2 flex justify-end"><button
+          onClick={() => setIsAddModalOpen(true)}
+          className="flex items-center gap-2 bg-green-500 text-white px-2 py-2 rounded hover:bg-green-700"
+        >
+          <FaFolderPlus /> New
         </button></div>
       </div>
     );
@@ -248,7 +394,8 @@ function AdminPannel() {
 
           <li
             onClick={() => setActiveTab("doctors")}
-            className="cursor-pointer p-2 rounded"
+            className={`cursor-pointer p-2 rounded ${activeTab === "doctors" ? "bg-white text-[#355872]" : ""
+              }`}
           >
             Doctors Info
           </li>
@@ -279,11 +426,7 @@ function AdminPannel() {
       {/* Content */}
       <div className="flex-1 p-10">
         {activeTab === "contact" && renderContactTable()}
-        {activeTab !== "contact" && (
-          <div className="text-gray-500">
-            {activeTab} section coming soon...
-          </div>
-        )}
+        {activeTab === "doctors" && renderDoctorsTable()}
       </div>
 
       {isModalOpen && (
@@ -316,18 +459,19 @@ function AdminPannel() {
             </div>
 
             <div className="flex justify-end space-x-2">
-              <button
-                onClick={() => setIsModalOpen(false)}
-                className="bg-gray-700 text-white px-4 py-1 rounded hover:bg-gray-500"
-              >
-                <ImCancelCircle />
-              </button>
+
 
               <button
                 onClick={handleUpdate}
-                className="bg-green-600 text-white px-4 py-1 rounded hover:bg-green-400"
+                className="bg-green-600 text-white px-5 py-2 rounded hover:bg-green-400"
               >
-                <PiPaperPlaneTiltFill />
+                Submit
+              </button>
+              <button
+                onClick={() => setIsModalOpen(false)}
+                className="bg-gray-700 text-white px-5 py-2 rounded hover:bg-gray-500"
+              >
+                Cancel
               </button>
             </div>
           </div>
@@ -365,17 +509,16 @@ function AdminPannel() {
 
             <div className="flex justify-end space-x-2">
               <button
-                onClick={() => setIsAddModalOpen(false)}
-                className="bg-gray-700 text-white px-4 py-1 rounded hover:bg-gray-500"
-              >
-                <ImCancelCircle />
-              </button>
-
-              <button
                 onClick={handleAdd}
-                className="bg-green-600 text-white px-4 py-1 rounded hover:bg-green-400"
+                className="bg-green-600 text-white px-5 py-2 rounded hover:bg-green-400"
               >
-                <PiPaperPlaneTiltFill />
+                Submit
+              </button>
+              <button
+                onClick={() => setIsAddModalOpen(false)}
+                className="bg-gray-700 text-white px-5 py-2 rounded hover:bg-gray-500"
+              >
+                Cancel
               </button>
             </div>
           </div>
