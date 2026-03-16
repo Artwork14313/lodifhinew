@@ -1,6 +1,6 @@
 import React from "react";
 import { doctorsData } from "../data";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 function Doctors() {
   // const filteredItems = doctorsData.filter(
@@ -13,17 +13,40 @@ function Doctors() {
     setSelectedCategory(e.target.value);
   };
 
+  const [doctors, setDoctors] = useState([]);
+
+  useEffect(() => {
+    const loadDoctors = async () => {
+      try {
+        const response = await fetch("http://localhost/lodifhinew-main/api/doctors.php");
+
+        if (!response.ok) {
+          throw new Error("API not reachable");
+        }
+
+        const data = await response.json();
+        // doctorsData = data;
+        setDoctors(data);
+      } catch (error) {
+        console.log("Using fallback data:", error.message);
+        setDoctors(doctorsData); // fallback
+      }
+    };
+
+    loadDoctors();
+  }, []);
+
   // const filteredItems =
   //   selectedCategory === "all"
   //     ? doctorsData
   //     : doctorsData.filter((doctor) => doctor.Position === selectedCategory);
 
-  const filteredItems = doctorsData.filter((item) => {
-    if (selectedCategory !== "all" && item.Position !== selectedCategory) {
+  const filteredItems = doctors.filter((item) => {
+    if (selectedCategory !== "all" && item.specialization !== selectedCategory) {
       return false;
     }
 
-    return item.Name.toLowerCase().includes(searchTerm.toLowerCase());
+    return item.fullName.toLowerCase().includes(searchTerm.toLowerCase());
   });
 
   const renderedItems = filteredItems.map((item) => (
@@ -33,10 +56,10 @@ function Doctors() {
     >
       <img src={item.Source} className="h-auto w-full" alt="Hospital leader" />
       <h3 className="font-bold 2xl:text-lg text-center text-[#337CCF] mt-1">
-        DR. {item.Name.toUpperCase()}
+        DR. {item.fullName.toUpperCase()}
       </h3>
       <p className="text-center text-sm 2xl:text-base text-gray-400">
-        {item.Position.toUpperCase()}
+        {item.specialization.toUpperCase()}
       </p>
     </div>
   ));

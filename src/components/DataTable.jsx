@@ -27,16 +27,16 @@ export default function DataTable({ columns, data, onEdit, onDelete }) {
             <td className="py-2 px-4 border-b text-center flex justify-center gap-2">
               <button
                 onClick={() => onEdit(item)}
-                className="bg-blue-500 text-white px-2 py-1 rounded"
+                className="flex items-center bg-blue-500 text-white px-2 py-1 rounded"
               >
-                <BiEdit />
+                <BiEdit /> Edit
               </button>
 
               <button
                 onClick={() => onDelete(item.id)}
-                className="bg-red-500 text-white px-2 py-1 rounded"
+                className="flex items-center bg-red-500 text-white px-2 py-1 rounded"
               >
-                <RiDeleteBin6Line />
+                <RiDeleteBin6Line /> Delete
               </button>
             </td>
           </tr>

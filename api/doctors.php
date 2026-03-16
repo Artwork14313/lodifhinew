@@ -4,7 +4,6 @@ header("Access-Control-Allow-Origin: *");
 header("Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS");
 header("Access-Control-Allow-Headers: Content-Type");
 
-// Handle preflight
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     http_response_code(200);
     exit();
@@ -25,15 +24,27 @@ if ($conn->connect_error) {
 
 $method = $_SERVER['REQUEST_METHOD'];
 
+/* 🔹 allow PUT using POST + _method */
+if ($method === "POST" && isset($_GET['_method']) && $_GET['_method'] === "PUT") {
+    $method = "PUT";
+}
+
+/* 🔹 upload folder */
+$uploadDir = dirname(__DIR__) . "/public/";
+
+if (!file_exists($uploadDir)) {
+    mkdir($uploadDir, 0777, true);
+}
+
 switch ($method) {
 
     // ========================
-    // GET - Fetch Contacts
+    // GET - Fetch Doctors
     // ========================
     case 'GET':
 
         $stmt = $conn->prepare(
-            "SELECT id, fullname, specialization
+            "SELECT id, Source, fullName, specialization
              FROM doctors
              WHERE isActive = 1
              ORDER BY id ASC"
@@ -42,44 +53,52 @@ switch ($method) {
         $stmt->execute();
         $result = $stmt->get_result();
 
-        $contacts = [];
+        $doctors = [];
 
         while ($row = $result->fetch_assoc()) {
-            $contacts[] = $row;
+            $doctors[] = $row;
         }
 
-        echo json_encode($contacts);
+        echo json_encode($doctors);
         break;
 
 
     // ========================
-    // POST - Add Contact
+    // POST - Add Doctor
     // ========================
     case 'POST':
 
-        $data = json_decode(file_get_contents("php://input"), true);
+        $fullName = trim($_POST['fullName'] ?? "");
+        $specialization = trim($_POST['specialization'] ?? "");
 
-        if (
-            empty($data['fullname']) ||
-            empty($data['specialization'])
-        ) {
+        if (empty($fullName) || empty($specialization)) {
             http_response_code(400);
-            echo json_encode(["error" => "fullname and Contact Number are required"]);
+            echo json_encode(["error" => "fullName and specialization are required"]);
             exit();
         }
 
-        $fullname = trim($data['fullname']);
-        $specialization = trim($data['specialization']);
+        $Source = "";
+
+        /* 🔹 handle file upload */
+        if (isset($_FILES['file']) && $_FILES['file']['error'] === 0) {
+
+            $filename = basename($_FILES["file"]["name"]);
+            $targetFile = $uploadDir . $filename;
+
+            move_uploaded_file($_FILES["file"]["tmp_name"], $targetFile);
+
+            $Source = "/" . $filename;
+        }
 
         $stmt = $conn->prepare(
-            "INSERT INTO doctors (fullname, specialization, isActive)
-             VALUES (?, ?, 1)"
+            "INSERT INTO doctors (Source, fullName, specialization, isActive)
+             VALUES (?, ?, ?, 1)"
         );
 
-        $stmt->bind_param("ss", $fullname, $specialization);
+        $stmt->bind_param("sss", $Source, $fullName, $specialization);
 
         if ($stmt->execute()) {
-            echo json_encode(["message" => "Contact added successfully"]);
+            echo json_encode(["message" => "Doctor added successfully"]);
         } else {
             http_response_code(400);
             echo json_encode(["error" => "Insert failed"]);
@@ -89,36 +108,62 @@ switch ($method) {
 
 
     // ========================
-    // PUT - Update Contact
+    // PUT - Update Doctor
     // ========================
     case 'PUT':
 
-        $data = json_decode(file_get_contents("php://input"), true);
+        // Parse PUT data (for FormData multipart)
+        $id = 0;
+        $fullName = "";
+        $specialization = "";
+        $Source = "";
 
-        if (
-            empty($data['id']) ||
-            empty($data['fullname']) ||
-            empty($data['specialization'])
-        ) {
+        // If request is multipart/form-data, use $_POST and $_FILES
+        if (!empty($_POST)) {
+            $id = (int) ($_POST['id'] ?? 0);
+            $fullName = trim($_POST['fullName'] ?? "");
+            $specialization = trim($_POST['specialization'] ?? "");
+        } else {
+            // fallback for JSON payloads
+            $data = json_decode(file_get_contents("php://input"), true);
+            $id = (int) ($data['id'] ?? 0);
+            $fullName = trim($data['fullName'] ?? "");
+            $specialization = trim($data['specialization'] ?? "");
+        }
+
+        if ($id === 0 || empty($fullName) || empty($specialization)) {
             http_response_code(400);
-            echo json_encode(["error" => "ID, fullname and Contact Number are required"]);
+            echo json_encode([
+                "error" => "ID, fullName and specialization are required",
+                "debug" => ["id" => $id, "fullName" => $fullName, "specialization" => $specialization, "_POST" => $_POST, "_FILES" => $_FILES]
+            ]);
             exit();
         }
 
-        $id = (int)$data['id'];
-        $fullname = trim($data['fullname']);
-        $specialization = trim($data['specialization']);
+        // Get old image
+        $old = $conn->query("SELECT Source FROM doctors WHERE id=$id")->fetch_assoc();
+        $Source = $old['Source'] ?? "";
+
+        // Handle new file upload if exists
+        if (isset($_FILES['file']) && $_FILES['file']['error'] === 0) {
+            $filename = basename($_FILES["file"]["name"]);
+            $targetFile = $uploadDir . $filename;
+
+            if (move_uploaded_file($_FILES["file"]["tmp_name"], $targetFile)) {
+                $Source = "/" . $filename; // only replace Source if upload succeeded
+            }
+        }
 
         $stmt = $conn->prepare(
             "UPDATE doctors
-             SET fullname = ?, specialization = ?
-             WHERE id = ?"
+         SET Source = ?, fullName = ?, specialization = ?
+         WHERE id = ?"
         );
 
-        $stmt->bind_param("ssi", $fullname, $specialization, $id);
+        $stmt->bind_param("sssi", $Source, $fullName, $specialization, $id);
 
         if ($stmt->execute()) {
-            echo json_encode(["message" => "Contact updated successfully"]);
+            echo json_encode(["message" => "Doctor updated successfully"]);
         } else {
             http_response_code(400);
             echo json_encode(["error" => "Update failed"]);
@@ -140,7 +185,7 @@ switch ($method) {
             exit();
         }
 
-        $id = (int)$data['id'];
+        $id = (int) $data['id'];
 
         $stmt = $conn->prepare(
             "UPDATE doctors
@@ -151,7 +196,7 @@ switch ($method) {
         $stmt->bind_param("i", $id);
 
         if ($stmt->execute()) {
-            echo json_encode(["message" => "Contact deleted successfully"]);
+            echo json_encode(["message" => "Doctor deleted successfully"]);
         } else {
             http_response_code(400);
             echo json_encode(["error" => "Delete failed"]);
