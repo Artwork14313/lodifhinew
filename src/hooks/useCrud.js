@@ -29,9 +29,10 @@ export default function useCrud(endpoint) {
   // ========================
   const sendRequest = async (method, item) => {
     const isDoctors = endpoint.includes("doctors");
+    const isLeaders = endpoint.includes("leaders");
     let fetchOptions;
 
-    if (isDoctors) {
+    if (isDoctors || isLeaders) {
       // 🔹 Use FormData for doctors (file + fields)
       const formData = new FormData();
       Object.keys(item).forEach(key => {

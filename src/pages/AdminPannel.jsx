@@ -9,10 +9,12 @@ function AdminPanel() {
 
   const [activeTab, setActiveTab] = useState("contacts");
 
+  const apiPath = "http://localhost/lodifhinew-main/api"
   const endpoints = {
-    contacts: "http://localhost/lodifhinew-main/api/contacts.php",
-    doctors: "http://localhost/lodifhinew-main/api/doctors.php",
-    rooms: "http://localhost/lodifhinew-main/api/rooms.php"
+    contacts: apiPath + "/contacts.php",
+    doctors: apiPath + "/doctors.php",
+    leaders: apiPath + "/leaders.php",
+    rooms: apiPath + "/rooms.php"
   };
 
   const { data, createItem, updateItem, deleteItem } =
@@ -46,17 +48,42 @@ function AdminPanel() {
           label: "Specialization",
           type: "select",
           options: [
-            "Cardiologist",
+            "Surgery",
             "Pediatrics",
-            "Dermatologist",
-            "Orthopedic",
-            "Neurologist",
+            "Internal Medicine",
+            "Anesthesiology",
+            "Obstetrics & Gynecology",
             "General Practitioner"
           ]
         },
         {
           key: "Source",
           label: "Doctor Photo",
+          type: "file"
+        }
+      ]
+    },
+
+    leaders: {
+      columns: [
+        { key: "fullName", label: "Name" },
+        { key: "title", label: "Title" }
+      ],
+      fields: [
+        { key: "fullName", label: "Name", type: "text" },
+        {
+          key: "title",
+          label: "Title",
+          type: "select",
+          options: [
+            "CHAIRMAN, HOSPITAL BOARD",
+            "MEDICAL DIRECTOR",
+            "O.I.C - ADMINISTRATIVE SERVICES"
+          ]
+        },
+        {
+          key: "Source",
+          label: "Leader Photo",
           type: "file"
         }
       ]

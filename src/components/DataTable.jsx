@@ -29,14 +29,14 @@ export default function DataTable({ columns, data, onEdit, onDelete }) {
                 onClick={() => onEdit(item)}
                 className="flex items-center bg-blue-500 text-white px-2 py-1 rounded"
               >
-                <BiEdit /> Edit
+                <BiEdit /> 
               </button>
 
               <button
                 onClick={() => onDelete(item.id)}
                 className="flex items-center bg-red-500 text-white px-2 py-1 rounded"
               >
-                <RiDeleteBin6Line /> Delete
+                <RiDeleteBin6Line /> 
               </button>
             </td>
           </tr>
